@@ -7,7 +7,7 @@ interface HelpGuidePageProps {
 
 export const HelpGuidePage: React.FC<HelpGuidePageProps> = ({ onClose }) => {
   return (
-    <div className="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 overflow-y-auto">
+    <div className="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 overflow-y-auto help-guide-container">
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto">
           <button
@@ -27,54 +27,27 @@ export const HelpGuidePage: React.FC<HelpGuidePageProps> = ({ onClose }) => {
                 <Upload className="h-6 w-6" /> Data Input
               </h2>
               <div className="space-y-4 text-gray-300">
-                <h3 className="text-xl font-semibold text-blue-400">File Upload</h3>
-                <p>Upload your social media data in various formats:</p>
+                <h3 className="text-xl font-semibold text-blue-400">CSV File Format</h3>
+                <p>Your CSV file should include the following columns:</p>
                 <ul className="list-disc list-inside space-y-2 ml-4">
-                  <li><strong>CSV/Excel:</strong> Structured data with headers</li>
-                  <li><strong>JSON:</strong> Array of social media post objects</li>
-                  <li><strong>Text/Markdown:</strong> Tab-separated values</li>
-                  <li><strong>PDF:</strong> Structured text format</li>
+                  <li><strong>id:</strong> Unique identifier for each post</li>
+                  <li><strong>type:</strong> Post type (image, carousel, reel, or text)</li>
+                  <li><strong>content:</strong> Post content or description</li>
+                  <li><strong>likes:</strong> Number of likes</li>
+                  <li><strong>shares:</strong> Number of shares</li>
+                  <li><strong>comments:</strong> Number of comments</li>
+                  <li><strong>date:</strong> Post date (YYYY-MM-DD format)</li>
+                  <li><strong>views:</strong> Number of views</li>
+                  <li><strong>saves:</strong> Number of saves</li>
+                  <li><strong>engagementRate:</strong> Engagement rate percentage</li>
+                  <li><strong>hashtags:</strong> Comma-separated hashtags</li>
                 </ul>
 
-                <h3 className="text-xl font-semibold text-blue-400 mt-6">Manual Entry</h3>
-                <p>Add posts manually with the following fields:</p>
-                <ul className="list-disc list-inside space-y-2 ml-4">
-                  <li><strong>Required Fields:</strong> Post ID, Type, Likes, Shares, Comments</li>
-                  <li><strong>Optional Fields:</strong> Views, Saves, Engagement Rate, Hashtags</li>
-                </ul>
-              </div>
-            </section>
-
-            {/* Data Format Section */}
-            <section className="glass-effect rounded-xl p-6">
-              <h2 className="text-2xl font-bold text-emerald-400 mb-4 flex items-center gap-2">
-                <FileSpreadsheet className="h-6 w-6" /> Data Format
-              </h2>
-              <div className="space-y-4 text-gray-300">
-                <h3 className="text-xl font-semibold text-blue-400">File Templates</h3>
-                <div className="space-y-4">
-                  <div>
-                    <p className="font-semibold mb-2">CSV Format:</p>
-                    <pre className="bg-gray-900/50 p-3 rounded-lg overflow-x-auto text-sm">
-                      id,type,content,likes,shares,comments,date,views,saves,engagementRate,hashtags
-                      post1,image,Sample content,100,50,30,2024-03-20,1000,75,5.2,tag1;tag2
-                    </pre>
-                  </div>
-                  <div>
-                    <p className="font-semibold mb-2">JSON Format:</p>
-                    <pre className="bg-gray-900/50 p-3 rounded-lg overflow-x-auto text-sm">
-                      {JSON.stringify([{
-                        id: "post1",
-                        type: "image",
-                        content: "Sample content",
-                        likes: 100,
-                        shares: 50,
-                        comments: 30,
-                        date: "2024-03-20"
-                      }], null, 2)}
-                    </pre>
-                  </div>
-                </div>
+                <h3 className="text-xl font-semibold text-blue-400 mt-6">Sample CSV Format</h3>
+                <pre className="bg-gray-900/50 p-3 rounded-lg overflow-x-auto text-sm">
+                  id,type,content,likes,shares,comments,date,views,saves,engagementRate,hashtags
+                  post1,image,Sample content,100,50,30,2024-03-20,1000,75,5.2,tag1;tag2;tag3
+                </pre>
               </div>
             </section>
 
@@ -84,19 +57,35 @@ export const HelpGuidePage: React.FC<HelpGuidePageProps> = ({ onClose }) => {
                 <BarChart2 className="h-6 w-6" /> Analytics Features
               </h2>
               <div className="space-y-4 text-gray-300">
-                <h3 className="text-xl font-semibold text-blue-400">Available Charts</h3>
+                <h3 className="text-xl font-semibold text-blue-400">Dashboard Metrics</h3>
                 <ul className="list-disc list-inside space-y-2 ml-4">
-                  <li><strong>Bar Chart:</strong> Compare metrics across post types</li>
-                  <li><strong>Line Chart:</strong> Track trends and patterns</li>
-                  <li><strong>Area Chart:</strong> Visualize data distribution</li>
+                  <li><strong>Total Posts:</strong> Overall number of posts analyzed</li>
+                  <li><strong>Total Likes:</strong> Cumulative likes across all posts</li>
+                  <li><strong>Total Shares:</strong> Cumulative shares across all posts</li>
+                  <li><strong>Total Comments:</strong> Cumulative comments across all posts</li>
                 </ul>
 
-                <h3 className="text-xl font-semibold text-blue-400 mt-6">Metrics Tracked</h3>
+                <h3 className="text-xl font-semibold text-blue-400 mt-6">Engagement Charts</h3>
                 <ul className="list-disc list-inside space-y-2 ml-4">
-                  <li>Average Likes per Post Type</li>
-                  <li>Average Shares per Post Type</li>
-                  <li>Average Comments per Post Type</li>
-                  <li>Total Posts per Category</li>
+                  <li>Compare metrics across different post types</li>
+                  <li>View average engagement rates</li>
+                  <li>Analyze performance trends</li>
+                </ul>
+              </div>
+            </section>
+
+            {/* Report Generation */}
+            <section className="glass-effect rounded-xl p-6">
+              <h2 className="text-2xl font-bold text-emerald-400 mb-4 flex items-center gap-2">
+                <FileSpreadsheet className="h-6 w-6" /> Report Generation
+              </h2>
+              <div className="space-y-4 text-gray-300">
+                <p>Generate comprehensive analytics reports including:</p>
+                <ul className="list-disc list-inside space-y-2 ml-4">
+                  <li>Overall performance metrics</li>
+                  <li>Performance breakdown by post type</li>
+                  <li>Average engagement metrics</li>
+                  <li>Detailed statistics for each content type</li>
                 </ul>
               </div>
             </section>
@@ -125,9 +114,11 @@ export const HelpGuidePage: React.FC<HelpGuidePageProps> = ({ onClose }) => {
               <div className="space-y-4 text-gray-300">
                 <h3 className="text-xl font-semibold text-blue-400">Common Issues</h3>
                 <ul className="list-disc list-inside space-y-2 ml-4">
-                  <li><strong>File Upload Errors:</strong> Check file format and structure</li>
-                  <li><strong>Data Format Issues:</strong> Ensure required fields are present</li>
-                  <li><strong>Chart Display Problems:</strong> Verify data consistency</li>
+                  <li><strong>File Format:</strong> Ensure your CSV file follows the required format</li>
+                  <li><strong>Data Types:</strong> Make sure numeric fields contain valid numbers</li>
+                  <li><strong>Post Types:</strong> Use only supported post types (image, carousel, reel, text)</li>
+                  <li><strong>Date Format:</strong> Use YYYY-MM-DD format for dates</li>
+                  <li><strong>Hashtags:</strong> Separate multiple hashtags with semicolons</li>
                 </ul>
               </div>
             </section>
