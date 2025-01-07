@@ -3,17 +3,19 @@ import { Upload, FileSpreadsheet, Plus, X, FileType, HelpCircle } from 'lucide-r
 import Papa from 'papaparse';
 import * as XLSX from 'xlsx';
 import { SocialMediaPost } from '../types';
-import { HelpGuide } from './HelpGuide';
 import { getDocument, GlobalWorkerOptions, version } from 'pdfjs-dist';
 import type { TextItem } from 'pdfjs-dist/types/src/display/api';
+import { HelpGuidePage } from './HelpGuidePage';
+import { CustomModal } from './CustomModal';
 
 GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${version}/pdf.worker.min.js`;
 
 interface DataInputProps {
   onDataLoaded: (data: SocialMediaPost[]) => void;
+  rawData: SocialMediaPost[];
 }
 
-export const DataInput: React.FC<DataInputProps> = ({ onDataLoaded }) => {
+export const DataInput: React.FC<DataInputProps> = ({ onDataLoaded, rawData }) => {
   const [showModal, setShowModal] = useState(false);
   const [dragActive, setDragActive] = useState(false);
   const [formData, setFormData] = useState<Partial<SocialMediaPost>>({
@@ -30,7 +32,10 @@ export const DataInput: React.FC<DataInputProps> = ({ onDataLoaded }) => {
     hashtags: [],
     contentLength: 0
   });
-  const [showHelp, setShowHelp] = useState(false);
+  const [showHelpPage, setShowHelpPage] = useState(false);
+  const [showFormatModal, setShowFormatModal] = useState(false);
+  const [showAlertModal, setShowAlertModal] = useState(false);
+  const [alertMessage, setAlertMessage] = useState('');
 
   const validatePostType = (type: string): SocialMediaPost['type'] => {
     const validTypes = ['carousel', 'reel', 'image', 'text'] as const;
@@ -182,7 +187,8 @@ export const DataInput: React.FC<DataInputProps> = ({ onDataLoaded }) => {
         }
       } catch (error) {
         console.error('Error processing file:', error);
-        alert('Error processing file. Please check the file format and try again.');
+        setAlertMessage('Error processing file. Please check the file format and try again.');
+        setShowAlertModal(true);
       }
     };
 
@@ -224,6 +230,65 @@ export const DataInput: React.FC<DataInputProps> = ({ onDataLoaded }) => {
     };
     onDataLoaded([newPost]);
     setShowModal(false);
+  };
+
+  const handleDownloadReport = () => {
+    setShowFormatModal(true);
+  };
+
+  const handleFormatSelect = (format: string) => {
+    if (format !== 'report') {
+      setAlertMessage('Only report format is available');
+      setShowAlertModal(true);
+      return;
+    }
+
+    if (rawData.length === 0) {
+      setAlertMessage('No data available. Please upload or enter data first.');
+      setShowAlertModal(true);
+      return;
+    }
+
+    const reportContent = `Social Media Analytics Report
+${new Date().toLocaleDateString()}
+
+Overall Performance
+------------------
+Total Posts: ${rawData.length}
+Total Likes: ${rawData.reduce((acc, post) => acc + post.likes, 0)}
+Total Shares: ${rawData.reduce((acc, post) => acc + post.shares, 0)}
+Total Comments: ${rawData.reduce((acc, post) => acc + post.comments, 0)}
+
+Performance by Post Type
+-----------------------
+${Object.entries(
+  rawData.reduce((acc, post) => {
+    if (!acc[post.type]) {
+      acc[post.type] = { posts: 0, likes: 0, shares: 0, comments: 0 };
+    }
+    acc[post.type].posts++;
+    acc[post.type].likes += post.likes;
+    acc[post.type].shares += post.shares;
+    acc[post.type].comments += post.comments;
+    return acc;
+  }, {} as Record<string, { posts: number; likes: number; shares: number; comments: number }>)
+).map(([type, stats]) => 
+  `${type.toUpperCase()}:
+   Posts: ${stats.posts}
+   Avg. Likes: ${(stats.likes / stats.posts).toFixed(2)}
+   Avg. Shares: ${(stats.shares / stats.posts).toFixed(2)}
+   Avg. Comments: ${(stats.comments / stats.posts).toFixed(2)}`
+).join('\n\n')}`;
+
+  const blob = new Blob([reportContent], { type: 'text/plain' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'analytics_report.txt';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
   };
 
   return (
@@ -273,17 +338,23 @@ export const DataInput: React.FC<DataInputProps> = ({ onDataLoaded }) => {
             <span className="font-semibold">Manual Entry</span>
           </button>
 
-          <button className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-r from-purple-500/20 to-pink-500/20 hover:from-purple-500/30 hover:to-pink-500/30 text-white rounded-xl transition-all duration-300 group">
+          <button 
+            onClick={handleDownloadReport}
+            className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-r from-purple-500/20 to-pink-500/20 hover:from-purple-500/30 hover:to-pink-500/30 text-white rounded-xl transition-all duration-300 group"
+          >
             <FileSpreadsheet className="h-5 w-5 text-purple-400" />
-            <span className="font-semibold">Download Template</span>
+            <span className="font-semibold">Download Report</span>
           </button>
 
           <div className="glass-effect rounded-xl p-4">
             <div className="flex items-start gap-3">
               <HelpCircle className="h-5 w-5 text-blue-400 flex-shrink-0 mt-1" />
-              <p className="text-sm text-gray-400">
-                Need help? Check out our guide on how to format your data for the best results.
-              </p>
+              <button
+                onClick={() => setShowHelpPage(true)}
+                className="text-sm text-gray-400 hover:text-gray-300 transition-colors text-left"
+              >
+                Need help? Check out our comprehensive guide.
+              </button>
             </div>
           </div>
         </div>
@@ -473,7 +544,24 @@ export const DataInput: React.FC<DataInputProps> = ({ onDataLoaded }) => {
         </div>
       )}
 
-      {showHelp && <HelpGuide onClose={() => setShowHelp(false)} />}
+      {showHelpPage && <HelpGuidePage onClose={() => setShowHelpPage(false)} />}
+
+      <CustomModal
+        isOpen={showFormatModal}
+        onClose={() => setShowFormatModal(false)}
+        title="Download Report"
+        type="select"
+        message="Click to download your analytics report:"
+        options={['report']}
+        onSelect={handleFormatSelect}
+      />
+      <CustomModal
+        isOpen={showAlertModal}
+        onClose={() => setShowAlertModal(false)}
+        title="Error"
+        type="alert"
+        message={alertMessage}
+      />
     </div>
   );
 };

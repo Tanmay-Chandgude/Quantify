@@ -1,9 +1,10 @@
-import { useState } from 'react';
-import { BarChart2, MessageSquare, TrendingUp, Users, Share2, MessageCircle } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { BarChart2, MessageSquare, TrendingUp, Users, Share2, MessageCircle, HelpCircle, ArrowUp } from 'lucide-react';
 import { DataInput } from './components/DataInput';
 import { AnalyticsChart } from './components/AnalyticsChart';
 import { ChatInterface } from './components/ChatInterface';
 import { SocialMediaPost, AnalyticsData } from './types';
+import { HelpGuidePage } from './components/HelpGuidePage';
 
 function App() {
   const [analyticsData, setAnalyticsData] = useState<AnalyticsData[]>([
@@ -37,6 +38,17 @@ function App() {
     }
   ]);
   const [rawData, setRawData] = useState<SocialMediaPost[]>([]);
+  const [showHelpPage, setShowHelpPage] = useState(false);
+  const [showScrollTop, setShowScrollTop] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowScrollTop(window.scrollY > 400);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const processData = (data: SocialMediaPost[]) => {
     setRawData(data);
@@ -87,11 +99,43 @@ function App() {
       <nav className="glass-effect sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <TrendingUp className="h-8 w-8 text-emerald-400" />
-              <span className="text-2xl font-bold bg-gradient-to-r from-emerald-400 to-blue-500 text-transparent bg-clip-text">
-                Quantify
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <TrendingUp className="h-8 w-8 text-emerald-400" />
+                <span className="text-2xl font-bold bg-gradient-to-r from-emerald-400 to-blue-500 text-transparent bg-clip-text">
+                  Quantify
+                </span>
+              </div>
+              <span className="text-gray-400 hidden md:block">|</span>
+              <span className="text-sm text-gray-400 hidden md:block">
+                Social Media Analytics Dashboard
               </span>
+            </div>
+
+            <div className="hidden md:flex items-center gap-6">
+              <a 
+                href="#analytics" 
+                className="text-gray-400 hover:text-emerald-400 transition-colors flex items-center gap-2"
+                onClick={() => document.querySelector('#analytics')?.scrollIntoView({ behavior: 'smooth' })}
+              >
+                <BarChart2 size={18} />
+                <span>Analytics</span>
+              </a>
+              <a 
+                href="#ai-insights" 
+                className="text-gray-400 hover:text-emerald-400 transition-colors flex items-center gap-2"
+                onClick={() => document.querySelector('#ai-insights')?.scrollIntoView({ behavior: 'smooth' })}
+              >
+                <MessageSquare size={18} />
+                <span>AI Insights</span>
+              </a>
+              <button 
+                onClick={() => setShowHelpPage(true)} 
+                className="text-gray-400 hover:text-emerald-400 transition-colors flex items-center gap-2"
+              >
+                <HelpCircle size={18} />
+                <span>Help</span>
+              </button>
             </div>
           </div>
         </div>
@@ -153,15 +197,15 @@ function App() {
             <h2 className="text-xl font-bold mb-6 flex items-center gap-2 text-emerald-400">
               <BarChart2 className="text-emerald-400" /> Data Input
             </h2>
-            <DataInput onDataLoaded={processData} />
+            <DataInput onDataLoaded={processData} rawData={rawData} />
           </div>
 
-          <div className="glass-effect rounded-xl p-6">
+          <div id="analytics" className="glass-effect rounded-xl p-6">
             <h2 className="text-xl font-bold mb-6 text-emerald-400">Engagement Analytics</h2>
             <AnalyticsChart data={analyticsData} />
           </div>
 
-          <div className="lg:col-span-2 glass-effect rounded-xl p-6">
+          <div id="ai-insights" className="lg:col-span-2 glass-effect rounded-xl p-6">
             <h2 className="text-xl font-bold mb-6 flex items-center gap-2 text-emerald-400">
               <MessageSquare className="text-emerald-400" /> AI Insights
             </h2>
@@ -169,6 +213,19 @@ function App() {
           </div>
         </div>
       </div>
+
+      {showHelpPage && <HelpGuidePage onClose={() => setShowHelpPage(false)} />}
+
+      {showScrollTop && (
+        <button
+          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+          className="fixed bottom-8 right-1 p-3 rounded-full bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 transition-all duration-300 backdrop-blur-sm"
+          aria-label="Scroll to top"
+          title="Scroll to top"
+        >
+          <ArrowUp size={18} />
+        </button>
+      )}
     </div>
   );
 }
