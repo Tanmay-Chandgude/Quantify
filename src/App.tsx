@@ -37,11 +37,12 @@ function App() {
       totalPosts: 0
     }
   ]);
-  const [rawData, setRawData] = useState<SocialMediaPost[]>([]);
   const [showHelpPage, setShowHelpPage] = useState(false);
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [dragActive, setDragActive] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const [showAlertModal, setShowAlertModal] = useState(false);
+  const [alertMessage, setAlertMessage] = useState('');
 
   useEffect(() => {
     const handleScroll = () => {
@@ -52,26 +53,56 @@ function App() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  const validatePostType = (type: string): SocialMediaPost['type'] => {
+    const validTypes = ['carousel', 'reel', 'image', 'text'] as const;
+    return validTypes.includes(type?.toLowerCase() as any) ? type.toLowerCase() as SocialMediaPost['type'] : 'image';
+  };
+
   const processData = (data: SocialMediaPost[]) => {
-    setRawData(data);
-    
-    const postTypes = [...new Set(data.map(post => post.type))];
-    const analytics = postTypes.map(type => {
-      const postsOfType = data.filter(post => post.type === type);
-      return {
+    // Create a map to store post type data
+    const postTypeMap = data.reduce((acc, post) => {
+      if (!acc[post.type]) {
+        acc[post.type] = {
+          totalLikes: 0,
+          totalShares: 0,
+          totalComments: 0,
+          count: 0
+        };
+      }
+      acc[post.type].totalLikes += post.likes;
+      acc[post.type].totalShares += post.shares;
+      acc[post.type].totalComments += post.comments;
+      acc[post.type].count += 1;
+      return acc;
+    }, {} as Record<string, { totalLikes: number; totalShares: number; totalComments: number; count: number }>);
+
+    // Convert the map to analytics data array
+    const analytics = Object.entries(postTypeMap).map(([type, stats]) => ({
+      postType: type,
+      avgLikes: Math.round(stats.totalLikes / stats.count),
+      avgShares: Math.round(stats.totalShares / stats.count),
+      avgComments: Math.round(stats.totalComments / stats.count),
+      totalPosts: stats.count
+    }));
+
+    // Add any missing post types with zero values
+    const allPostTypes = ['image', 'carousel', 'reel', 'text'];
+    const finalAnalytics = allPostTypes.map(type => {
+      const existingData = analytics.find(a => a.postType === type);
+      return existingData || {
         postType: type,
-        avgLikes: Math.round(postsOfType.reduce((acc, post) => acc + post.likes, 0) / postsOfType.length),
-        avgShares: Math.round(postsOfType.reduce((acc, post) => acc + post.shares, 0) / postsOfType.length),
-        avgComments: Math.round(postsOfType.reduce((acc, post) => acc + post.comments, 0) / postsOfType.length),
-        totalPosts: postsOfType.length
+        avgLikes: 0,
+        avgShares: 0,
+        avgComments: 0,
+        totalPosts: 0
       };
     });
 
-    setAnalyticsData(analytics);
+    setAnalyticsData(finalAnalytics);
   };
 
   const getTotalMetrics = () => {
-    if (rawData.length === 0) {
+    if (analyticsData.length === 0) {
       return {
         posts: 0,
         likes: 0,
@@ -81,10 +112,10 @@ function App() {
     }
 
     return {
-      posts: rawData.length,
-      likes: rawData.reduce((acc, post) => acc + (post.likes || 0), 0),
-      shares: rawData.reduce((acc, post) => acc + (post.shares || 0), 0),
-      comments: rawData.reduce((acc, post) => acc + (post.comments || 0), 0)
+      posts: analyticsData.reduce((acc, post) => acc + post.totalPosts, 0),
+      likes: analyticsData.reduce((acc, post) => acc + post.avgLikes * post.totalPosts, 0),
+      shares: analyticsData.reduce((acc, post) => acc + post.avgShares * post.totalPosts, 0),
+      comments: analyticsData.reduce((acc, post) => acc + post.avgComments * post.totalPosts, 0)
     };
   };
 
@@ -105,7 +136,7 @@ function App() {
   };
 
   const handleDownloadReport = () => {
-    if (rawData.length === 0) {
+    if (analyticsData.length === 0) {
       alert('No data available to generate report');
       return;
     }
@@ -115,20 +146,20 @@ ${new Date().toLocaleDateString()}
 
 Overall Performance
 ------------------
-Total Posts: ${rawData.length}
-Total Likes: ${rawData.reduce((acc, post) => acc + post.likes, 0)}
-Total Shares: ${rawData.reduce((acc, post) => acc + post.shares, 0)}
-Total Comments: ${rawData.reduce((acc, post) => acc + post.comments, 0)}
+Total Posts: ${metrics.posts}
+Total Likes: ${metrics.likes}
+Total Shares: ${metrics.shares}
+Total Comments: ${metrics.comments}
 
 Performance by Post Type
 -----------------------
 ${Object.entries(
-  rawData.reduce((acc, post) => {
-    if (!acc[post.type]) acc[post.type] = { posts: 0, likes: 0, shares: 0, comments: 0 };
-    acc[post.type].posts++;
-    acc[post.type].likes += post.likes;
-    acc[post.type].shares += post.shares;
-    acc[post.type].comments += post.comments;
+  analyticsData.reduce((acc, post) => {
+    if (!acc[post.postType]) acc[post.postType] = { posts: 0, likes: 0, shares: 0, comments: 0 };
+    acc[post.postType].posts++;
+    acc[post.postType].likes += post.avgLikes * post.totalPosts;
+    acc[post.postType].shares += post.avgShares * post.totalPosts;
+    acc[post.postType].comments += post.avgComments * post.totalPosts;
     return acc;
   }, {} as Record<string, { posts: number; likes: number; shares: number; comments: number }>)
 ).map(([type, stats]) => 
@@ -152,7 +183,8 @@ ${Object.entries(
 
   const handleFileUpload = (file: File) => {
     if (file.type !== 'text/csv') {
-      alert('Please upload a CSV file');
+      setAlertMessage('Please upload a CSV file only');
+      setShowAlertModal(true);
       return;
     }
 
@@ -160,31 +192,79 @@ ${Object.entries(
     reader.onload = (e) => {
       const text = e.target?.result;
       if (typeof text === 'string') {
-        const rows = text.split('\n');
-        const headers = rows[0].split(',');
-        const data: SocialMediaPost[] = rows.slice(1)
-          .filter(row => row.trim())
-          .map(row => {
-            const values = row.split(',');
-            return {
-              id: values[0] || Math.random().toString(36).substr(2, 9),
-              type: values[1] as SocialMediaPost['type'] || 'image',
-              content: values[2] || '',
-              likes: parseInt(values[3]) || 0,
-              shares: parseInt(values[4]) || 0,
-              comments: parseInt(values[5]) || 0,
-              date: values[6] || new Date().toISOString().split('T')[0],
-              views: parseInt(values[7]) || 0,
-              saves: parseInt(values[8]) || 0,
-              engagementRate: parseFloat(values[9]) || 0,
-              hashtags: values[10] ? values[10].split(';') : [],
-              contentLength: values[2]?.length || 0
-            };
-          });
-        processData(data);
+        try {
+          const rows = text.split(/\r?\n/).filter(row => row.trim());
+          const headers = rows[0].toLowerCase().split(',');
+          
+          console.log('Total rows:', rows.length - 1);
+          console.log('Headers:', headers);
+
+          const data: SocialMediaPost[] = rows.slice(1)
+            .map(row => {
+              const values = row.split(',').map(val => val.trim());
+              const post = {
+                id: values[headers.indexOf('id')] || Math.random().toString(36).substr(2, 9),
+                type: validatePostType(values[headers.indexOf('type')]),
+                content: values[headers.indexOf('content')] || '',
+                likes: parseInt(values[headers.indexOf('likes')]) || 0,
+                shares: parseInt(values[headers.indexOf('shares')]) || 0,
+                comments: parseInt(values[headers.indexOf('comments')]) || 0,
+                date: values[headers.indexOf('date')] || new Date().toISOString().split('T')[0],
+                views: parseInt(values[headers.indexOf('views')]) || 0,
+                saves: parseInt(values[headers.indexOf('saves')]) || 0,
+                engagementRate: parseFloat(values[headers.indexOf('engagementrate')]) || 0,
+                hashtags: values[headers.indexOf('hashtags')] ? values[headers.indexOf('hashtags')].split(';') : [],
+                contentLength: values[headers.indexOf('content')]?.length || 0
+              };
+              return post;
+            })
+            .filter(post => post.type && post.likes >= 0);
+
+          console.log('Processed posts:', data.length);
+          console.log('Post types:', data.map(post => post.type));
+
+          processData(data);
+        } catch (error) {
+          console.error('Error details:', error);
+          setAlertMessage('Error processing CSV file. Please check the format and try again.');
+          setShowAlertModal(true);
+        }
       }
     };
     reader.readAsText(file);
+  };
+
+  const handleReset = () => {
+    setAnalyticsData([
+      {
+        postType: 'image',
+        avgLikes: 0,
+        avgShares: 0,
+        avgComments: 0,
+        totalPosts: 0
+      },
+      {
+        postType: 'carousel',
+        avgLikes: 0,
+        avgShares: 0,
+        avgComments: 0,
+        totalPosts: 0
+      },
+      {
+        postType: 'reel',
+        avgLikes: 0,
+        avgShares: 0,
+        avgComments: 0,
+        totalPosts: 0
+      },
+      {
+        postType: 'text',
+        avgLikes: 0,
+        avgShares: 0,
+        avgComments: 0,
+        totalPosts: 0
+      }
+    ]);
   };
 
   return (
@@ -201,9 +281,12 @@ ${Object.entries(
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2">
                 <TrendingUp className="h-8 w-8 text-emerald-400" />
-                <span className="text-2xl font-bold bg-gradient-to-r from-emerald-400 to-blue-500 text-transparent bg-clip-text">
+                <button
+                  onClick={handleReset}
+                  className="text-2xl font-bold bg-gradient-to-r from-emerald-400 to-blue-500 text-transparent bg-clip-text hover:opacity-80 transition-opacity"
+                >
                   Quantify
-                </span>
+                </button>
               </div>
               <span className="text-gray-400 hidden md:block">|</span>
               <span className="text-sm text-gray-400 hidden md:block">
@@ -400,6 +483,16 @@ ${Object.entries(
           message="Enter your social media post data:"
           options={['Add Post']}
           onSelect={() => setShowModal(false)}
+        />
+      )}
+
+      {showAlertModal && (
+        <CustomModal
+          isOpen={showAlertModal}
+          onClose={() => setShowAlertModal(false)}
+          title="Error"
+          type="alert"
+          message={alertMessage}
         />
       )}
     </div>

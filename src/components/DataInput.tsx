@@ -7,10 +7,9 @@ import { CustomModal } from './CustomModal';
 
 interface DataInputProps {
   onDataLoaded: (data: SocialMediaPost[]) => void;
-  rawData: SocialMediaPost[];
 }
 
-export const DataInput: React.FC<DataInputProps> = ({ onDataLoaded, rawData }) => {
+export const DataInput: React.FC<DataInputProps> = ({ onDataLoaded }) => {
   const [showModal, setShowModal] = useState(false);
   const [dragActive, setDragActive] = useState(false);
   const [formData, setFormData] = useState<Partial<SocialMediaPost>>({
@@ -63,7 +62,7 @@ export const DataInput: React.FC<DataInputProps> = ({ onDataLoaded, rawData }) =
         onDataLoaded(parsedData);
       },
       header: true,
-      error: (error) => {
+      error: () => {
         setAlertMessage('Error processing CSV file. Please check the format and try again.');
         setShowAlertModal(true);
       }
