@@ -1,14 +1,9 @@
-import React, { useCallback, useState } from 'react';
+import React, { useState } from 'react';
 import { Upload, FileSpreadsheet, Plus, X, FileType, HelpCircle } from 'lucide-react';
 import Papa from 'papaparse';
-import * as XLSX from 'xlsx';
 import { SocialMediaPost } from '../types';
-import { getDocument, GlobalWorkerOptions, version } from 'pdfjs-dist';
-import type { TextItem } from 'pdfjs-dist/types/src/display/api';
 import { HelpGuidePage } from './HelpGuidePage';
 import { CustomModal } from './CustomModal';
-
-GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${version}/pdf.worker.min.js`;
 
 interface DataInputProps {
   onDataLoaded: (data: SocialMediaPost[]) => void;
@@ -42,165 +37,38 @@ export const DataInput: React.FC<DataInputProps> = ({ onDataLoaded, rawData }) =
     return validTypes.includes(type as any) ? type as SocialMediaPost['type'] : 'text';
   };
 
-  const handleFileUpload = useCallback((file: File) => {
-    const fileExtension = file.name.split('.').pop()?.toLowerCase();
-    const reader = new FileReader();
+  const handleFileUpload = (file: File) => {
+    if (file.type !== 'text/csv') {
+      setAlertMessage('Please upload a CSV file');
+      setShowAlertModal(true);
+      return;
+    }
 
-    reader.onload = async (e) => {
-      try {
-        let parsedData: SocialMediaPost[] = [];
-        const content = e.target?.result;
-
-        switch (fileExtension) {
-          case 'csv':
-      Papa.parse(file, {
-        complete: (results) => {
-                parsedData = results.data.map((row: any) => ({
-            id: row.id || Math.random().toString(36).substr(2, 9),
-                  type: validatePostType(row.type),
-                  content: row.content || '',
-                  likes: parseInt(row.likes) || 0,
-                  shares: parseInt(row.shares) || 0,
-                  comments: parseInt(row.comments) || 0,
-                  date: row.date || new Date().toISOString().split('T')[0],
-                  views: parseInt(row.views) || 0,
-                  saves: parseInt(row.saves) || 0,
-                  engagementRate: parseFloat(row.engagementRate) || 0,
-                  hashtags: row.hashtags ? row.hashtags.split(',').map((tag: string) => tag.trim()) : [],
-                  contentLength: row.content?.length || 0
-          }));
-          onDataLoaded(parsedData);
-        },
-        header: true
-      });
-            break;
-
-          case 'xlsx':
-          case 'xls':
-            const workbook = XLSX.read(content, { type: 'binary' });
-        const sheetName = workbook.SheetNames[0];
-        const worksheet = workbook.Sheets[sheetName];
-        const jsonData = XLSX.utils.sheet_to_json(worksheet);
-            parsedData = jsonData.map((row: any) => ({
-              id: row.id || Math.random().toString(36).substr(2, 9),
-              type: validatePostType(row.type),
-              content: row.content || '',
-              likes: parseInt(row.likes) || 0,
-              shares: parseInt(row.shares) || 0,
-              comments: parseInt(row.comments) || 0,
-              date: row.date || new Date().toISOString().split('T')[0],
-              views: parseInt(row.views) || 0,
-              saves: parseInt(row.saves) || 0,
-              engagementRate: parseFloat(row.engagementRate) || 0,
-              hashtags: row.hashtags ? String(row.hashtags).split(',').map(tag => tag.trim()) : [],
-              contentLength: row.content?.length || 0
-            }));
-            onDataLoaded(parsedData);
-            break;
-
-          case 'json':
-            const jsonContent = JSON.parse(content as string);
-            parsedData = Array.isArray(jsonContent) ? jsonContent : [jsonContent];
-            parsedData = parsedData.map(row => ({
-              id: row.id || Math.random().toString(36).substr(2, 9),
-              type: validatePostType(row.type),
-              content: row.content || '',
-              likes: parseInt(row.likes) || 0,
-              shares: parseInt(row.shares) || 0,
-              comments: parseInt(row.comments) || 0,
-              date: row.date || new Date().toISOString().split('T')[0],
-              views: parseInt(row.views) || 0,
-              saves: parseInt(row.saves) || 0,
-              engagementRate: parseFloat(row.engagementRate) || 0,
-              hashtags: Array.isArray(row.hashtags) ? row.hashtags : [],
-              contentLength: row.content?.length || 0
-            }));
-            onDataLoaded(parsedData);
-            break;
-
-          case 'txt':
-          case 'md':
-            const lines = (content as string).split('\n');
-            parsedData = lines
-              .filter(line => line.trim())
-              .map(line => {
-                const [type, content, likes, shares, comments, date, views, saves, engagementRate, hashtags] = line.split('\t');
-                return {
-                  id: Math.random().toString(36).substr(2, 9),
-                  type: validatePostType(type),
-                  content: content || '',
-                  likes: parseInt(likes) || 0,
-                  shares: parseInt(shares) || 0,
-                  comments: parseInt(comments) || 0,
-                  date: date || new Date().toISOString().split('T')[0],
-                  views: parseInt(views) || 0,
-                  saves: parseInt(saves) || 0,
-                  engagementRate: parseFloat(engagementRate) || 0,
-                  hashtags: hashtags ? hashtags.split(',').map(tag => tag.trim()) : [],
-                  contentLength: content?.length || 0
-                };
-              });
-            onDataLoaded(parsedData);
-            break;
-
-          case 'pdf':
-            const pdfData = new Uint8Array(content as ArrayBuffer);
-            const pdf = await getDocument({ data: pdfData }).promise;
-            let pdfText = '';
-            
-            // Get text from all pages
-            for (let i = 1; i <= pdf.numPages; i++) {
-              const page = await pdf.getPage(i);
-              const textContent = await page.getTextContent();
-              pdfText += textContent.items
-                .filter((item): item is TextItem => 'str' in item)
-                .map(item => item.str)
-                .join(' ');
-            }
-
-            // Split PDF text into lines and process
-            const pdfLines = pdfText.split('\n');
-            parsedData = pdfLines
-              .filter(line => line.trim())
-              .map(line => {
-                const [type, content, likes, shares, comments, date, views, saves, engagementRate, hashtags] = line.split('\t');
-                return {
-                  id: Math.random().toString(36).substr(2, 9),
-                  type: validatePostType(type),
-                  content: content || '',
-                  likes: parseInt(likes) || 0,
-                  shares: parseInt(shares) || 0,
-                  comments: parseInt(comments) || 0,
-                  date: date || new Date().toISOString().split('T')[0],
-                  views: parseInt(views) || 0,
-                  saves: parseInt(saves) || 0,
-                  engagementRate: parseFloat(engagementRate) || 0,
-                  hashtags: hashtags ? hashtags.split(',').map(tag => tag.trim()) : [],
-                  contentLength: content?.length || 0
-                };
-              });
-            onDataLoaded(parsedData);
-            break;
-
-          default:
-            throw new Error(`Unsupported file type: ${fileExtension}`);
-        }
-      } catch (error) {
-        console.error('Error processing file:', error);
-        setAlertMessage('Error processing file. Please check the file format and try again.');
+    Papa.parse(file, {
+      complete: (results) => {
+        const parsedData = results.data.map((row: any) => ({
+          id: row.id || Math.random().toString(36).substr(2, 9),
+          type: validatePostType(row.type),
+          content: row.content || '',
+          likes: parseInt(row.likes) || 0,
+          shares: parseInt(row.shares) || 0,
+          comments: parseInt(row.comments) || 0,
+          date: row.date || new Date().toISOString().split('T')[0],
+          views: parseInt(row.views) || 0,
+          saves: parseInt(row.saves) || 0,
+          engagementRate: parseFloat(row.engagementRate) || 0,
+          hashtags: row.hashtags ? row.hashtags.split(',').map((tag: string) => tag.trim()) : [],
+          contentLength: row.content?.length || 0
+        }));
+        onDataLoaded(parsedData);
+      },
+      header: true,
+      error: (error) => {
+        setAlertMessage('Error processing CSV file. Please check the format and try again.');
         setShowAlertModal(true);
       }
-    };
-
-    if (fileExtension === 'csv') {
-      // CSV is handled by Papa.parse directly
-      return;
-    } else if (fileExtension === 'pdf') {
-      reader.readAsArrayBuffer(file);  // Use ArrayBuffer for PDFs
-    } else {
-      reader.readAsBinaryString(file);
-    }
-  }, [onDataLoaded]);
+    });
+  };
 
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault();
@@ -230,65 +98,6 @@ export const DataInput: React.FC<DataInputProps> = ({ onDataLoaded, rawData }) =
     };
     onDataLoaded([newPost]);
     setShowModal(false);
-  };
-
-  const handleDownloadReport = () => {
-    setShowFormatModal(true);
-  };
-
-  const handleFormatSelect = (format: string) => {
-    if (format !== 'report') {
-      setAlertMessage('Only report format is available');
-      setShowAlertModal(true);
-      return;
-    }
-
-    if (rawData.length === 0) {
-      setAlertMessage('No data available. Please upload or enter data first.');
-      setShowAlertModal(true);
-      return;
-    }
-
-    const reportContent = `Social Media Analytics Report
-${new Date().toLocaleDateString()}
-
-Overall Performance
-------------------
-Total Posts: ${rawData.length}
-Total Likes: ${rawData.reduce((acc, post) => acc + post.likes, 0)}
-Total Shares: ${rawData.reduce((acc, post) => acc + post.shares, 0)}
-Total Comments: ${rawData.reduce((acc, post) => acc + post.comments, 0)}
-
-Performance by Post Type
------------------------
-${Object.entries(
-  rawData.reduce((acc, post) => {
-    if (!acc[post.type]) {
-      acc[post.type] = { posts: 0, likes: 0, shares: 0, comments: 0 };
-    }
-    acc[post.type].posts++;
-    acc[post.type].likes += post.likes;
-    acc[post.type].shares += post.shares;
-    acc[post.type].comments += post.comments;
-    return acc;
-  }, {} as Record<string, { posts: number; likes: number; shares: number; comments: number }>)
-).map(([type, stats]) => 
-  `${type.toUpperCase()}:
-   Posts: ${stats.posts}
-   Avg. Likes: ${(stats.likes / stats.posts).toFixed(2)}
-   Avg. Shares: ${(stats.shares / stats.posts).toFixed(2)}
-   Avg. Comments: ${(stats.comments / stats.posts).toFixed(2)}`
-).join('\n\n')}`;
-
-  const blob = new Blob([reportContent], { type: 'text/plain' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'analytics_report.txt';
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
   };
 
   return (
@@ -339,7 +148,7 @@ ${Object.entries(
           </button>
 
           <button 
-            onClick={handleDownloadReport}
+            onClick={() => setShowFormatModal(true)}
             className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-r from-purple-500/20 to-pink-500/20 hover:from-purple-500/30 hover:to-pink-500/30 text-white rounded-xl transition-all duration-300 group"
           >
             <FileSpreadsheet className="h-5 w-5 text-purple-400" />
@@ -553,7 +362,7 @@ ${Object.entries(
         type="select"
         message="Click to download your analytics report:"
         options={['report']}
-        onSelect={handleFormatSelect}
+        onSelect={() => {}}
       />
       <CustomModal
         isOpen={showAlertModal}

@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
-import { BarChart2, MessageSquare, TrendingUp, Users, Share2, MessageCircle, HelpCircle, ArrowUp } from 'lucide-react';
-import { DataInput } from './components/DataInput';
+import { BarChart2, MessageSquare, TrendingUp, Users, Share2, MessageCircle, HelpCircle, ArrowUp, FileType, Upload, Plus, FileSpreadsheet } from 'lucide-react';
 import { AnalyticsChart } from './components/AnalyticsChart';
 import { ChatInterface } from './components/ChatInterface';
 import { SocialMediaPost, AnalyticsData } from './types';
 import { HelpGuidePage } from './components/HelpGuidePage';
+import { CustomModal } from './components/CustomModal';
 
 function App() {
   const [analyticsData, setAnalyticsData] = useState<AnalyticsData[]>([
@@ -40,6 +40,8 @@ function App() {
   const [rawData, setRawData] = useState<SocialMediaPost[]>([]);
   const [showHelpPage, setShowHelpPage] = useState(false);
   const [showScrollTop, setShowScrollTop] = useState(false);
+  const [dragActive, setDragActive] = useState(false);
+  const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -87,6 +89,103 @@ function App() {
   };
 
   const metrics = getTotalMetrics();
+
+  const handleDrag = (event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    setDragActive(true);
+  };
+
+  const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    setDragActive(false);
+    const files = event.dataTransfer.files;
+    if (files.length > 0) {
+      handleFileUpload(files[0]);
+    }
+  };
+
+  const handleDownloadReport = () => {
+    if (rawData.length === 0) {
+      alert('No data available to generate report');
+      return;
+    }
+
+    const reportContent = `Social Media Analytics Report
+${new Date().toLocaleDateString()}
+
+Overall Performance
+------------------
+Total Posts: ${rawData.length}
+Total Likes: ${rawData.reduce((acc, post) => acc + post.likes, 0)}
+Total Shares: ${rawData.reduce((acc, post) => acc + post.shares, 0)}
+Total Comments: ${rawData.reduce((acc, post) => acc + post.comments, 0)}
+
+Performance by Post Type
+-----------------------
+${Object.entries(
+  rawData.reduce((acc, post) => {
+    if (!acc[post.type]) acc[post.type] = { posts: 0, likes: 0, shares: 0, comments: 0 };
+    acc[post.type].posts++;
+    acc[post.type].likes += post.likes;
+    acc[post.type].shares += post.shares;
+    acc[post.type].comments += post.comments;
+    return acc;
+  }, {} as Record<string, { posts: number; likes: number; shares: number; comments: number }>)
+).map(([type, stats]) => 
+  `${type.toUpperCase()}:
+   Posts: ${stats.posts}
+   Avg. Likes: ${(stats.likes / stats.posts).toFixed(2)}
+   Avg. Shares: ${(stats.shares / stats.posts).toFixed(2)}
+   Avg. Comments: ${(stats.comments / stats.posts).toFixed(2)}`
+).join('\n\n')}`;
+
+    const blob = new Blob([reportContent], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'analytics_report.txt';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  const handleFileUpload = (file: File) => {
+    if (file.type !== 'text/csv') {
+      alert('Please upload a CSV file');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const text = e.target?.result;
+      if (typeof text === 'string') {
+        const rows = text.split('\n');
+        const headers = rows[0].split(',');
+        const data: SocialMediaPost[] = rows.slice(1)
+          .filter(row => row.trim())
+          .map(row => {
+            const values = row.split(',');
+            return {
+              id: values[0] || Math.random().toString(36).substr(2, 9),
+              type: values[1] as SocialMediaPost['type'] || 'image',
+              content: values[2] || '',
+              likes: parseInt(values[3]) || 0,
+              shares: parseInt(values[4]) || 0,
+              comments: parseInt(values[5]) || 0,
+              date: values[6] || new Date().toISOString().split('T')[0],
+              views: parseInt(values[7]) || 0,
+              saves: parseInt(values[8]) || 0,
+              engagementRate: parseFloat(values[9]) || 0,
+              hashtags: values[10] ? values[10].split(';') : [],
+              contentLength: values[2]?.length || 0
+            };
+          });
+        processData(data);
+      }
+    };
+    reader.readAsText(file);
+  };
 
   return (
     <div className="min-h-screen bg-[#000000] text-white">
@@ -197,7 +296,72 @@ function App() {
             <h2 className="text-xl font-bold mb-6 flex items-center gap-2 text-emerald-400">
               <BarChart2 className="text-emerald-400" /> Data Input
             </h2>
-            <DataInput onDataLoaded={processData} rawData={rawData} />
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div 
+                className="col-span-2 glass-effect rounded-xl p-6 border-2 border-dashed border-gray-700 hover:border-emerald-500/50 transition-colors cursor-pointer relative group"
+                onDragEnter={handleDrag}
+                onDragLeave={handleDrag}
+                onDragOver={handleDrag}
+                onDrop={handleDrop}
+              >
+                <input
+                  type="file"
+                  accept=".csv"
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                  onChange={(e) => e.target.files && handleFileUpload(e.target.files[0])}
+                  aria-label="Upload CSV file"
+                  title="Upload CSV file"
+                />
+                <div className="flex flex-col items-center justify-center space-y-4 py-8">
+                  <div className="p-4 bg-emerald-500/10 rounded-full group-hover:scale-110 transition-transform">
+                    <Upload className="h-8 w-8 text-emerald-400" />
+                  </div>
+                  <div className="text-center">
+                    <p className="text-lg font-semibold text-emerald-400">Drop your CSV file here</p>
+                    <p className="text-sm text-gray-400">or click to browse</p>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-gray-400">
+                    <FileType size={16} />
+                    <span>Supported format: CSV</span>
+                  </div>
+                </div>
+                {dragActive && (
+                  <div className="absolute inset-0 bg-emerald-500/10 rounded-xl flex items-center justify-center">
+                    <p className="text-lg font-semibold text-emerald-400">Drop to upload</p>
+                  </div>
+                )}
+              </div>
+
+              <div className="space-y-4">
+                <button
+                  onClick={() => setShowModal(true)}
+                  className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-r from-emerald-500/20 to-blue-500/20 hover:from-emerald-500/30 hover:to-blue-500/30 text-white rounded-xl transition-all duration-300 group"
+                >
+                  <Plus className="h-5 w-5 text-emerald-400 group-hover:rotate-90 transition-transform" />
+                  <span className="font-semibold">Manual Entry</span>
+                </button>
+
+                <button 
+                  onClick={handleDownloadReport}
+                  className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-r from-purple-500/20 to-pink-500/20 hover:from-purple-500/30 hover:to-pink-500/30 text-white rounded-xl transition-all duration-300 group"
+                >
+                  <FileSpreadsheet className="h-5 w-5 text-purple-400" />
+                  <span className="font-semibold">Download Report</span>
+                </button>
+
+                <div className="glass-effect rounded-xl p-4">
+                  <div className="flex items-start gap-3">
+                    <HelpCircle className="h-5 w-5 text-blue-400 flex-shrink-0 mt-1" />
+                    <button
+                      onClick={() => setShowHelpPage(true)}
+                      className="text-sm text-gray-400 hover:text-gray-300 transition-colors text-left"
+                    >
+                      Need help? Check out our comprehensive guide.
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
 
           <div id="analytics" className="glass-effect rounded-xl p-6">
@@ -225,6 +389,18 @@ function App() {
         >
           <ArrowUp size={18} />
         </button>
+      )}
+
+      {showModal && (
+        <CustomModal
+          isOpen={showModal}
+          onClose={() => setShowModal(false)}
+          title="Manual Entry"
+          type="select"
+          message="Enter your social media post data:"
+          options={['Add Post']}
+          onSelect={() => setShowModal(false)}
+        />
       )}
     </div>
   );
