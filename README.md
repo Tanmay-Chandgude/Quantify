@@ -1,6 +1,9 @@
 # **Quantify**
+![Quantify Banner](https://via.placeholder.com/800x200.png?text=Quantify+Social+Media+Analytics)
 
 Analyze and visualize engagement metrics for social media posts using advanced analytics and data visualization techniques.
+
+---
 
 ## **Table of Contents**
 - [Project Overview](#project-overview)
@@ -9,13 +12,16 @@ Analyze and visualize engagement metrics for social media posts using advanced a
 - [Dataset](#dataset)
 - [Installation](#installation)
 - [Usage](#usage)
+- [Screenshots](#screenshots)
 - [Contributing](#contributing)
+- [License](#license)
+- [Acknowledgments](#acknowledgments)
 
 ---
 
 ## **Project Overview**
 
-Qyantify provides actionable insights into social media engagement data. This project utilizes a mock dataset of social media posts, allowing you to:
+Quantify provides actionable insights into social media engagement data. This project utilizes a mock dataset of social media posts, allowing you to:
 - Analyze post performance.
 - Understand engagement patterns across platforms.
 - Extract valuable insights for optimizing social media strategies.
@@ -23,40 +29,45 @@ Qyantify provides actionable insights into social media engagement data. This pr
 ---
 
 ## **Features**
+### Engagement Metrics
+- Analyze likes, comments, shares, saves, and views for each post.
+  
+### Sentiment Analysis
+- Evaluate post comments' sentiment (positive, neutral, negative).
 
-- **Engagement Metrics**: Analyze likes, comments, shares, saves, and views for each post.
-- **Sentiment Analysis**: Evaluate the sentiment (positive, neutral, negative) of post comments.
-- **User Demographics**: Understand how different age groups, genders, and locations engage with posts.
-- **Platform Insights**: Compare performance across platforms like Instagram, Facebook, and Twitter.
-- **Hashtag Effectiveness**: Discover the impact of hashtags on engagement rates.
-- **Temporal Trends**: Identify peak engagement times and optimize posting schedules.
+### User Demographics
+- Understand engagement patterns across age groups, genders, and locations.
+
+### Platform Insights
+- Compare performance across Instagram, Facebook, and Twitter.
+
+### Hashtag Effectiveness
+- Discover the impact of hashtags on engagement rates.
+
+### Temporal Trends
+- Identify peak engagement times and optimize posting schedules.
 
 ---
 
 ## **Tech Stack**
 
-- **Frontend**: React, TypeScript
+- **Frontend**: React.js (TypeScript), Vite, TailwindCSS
 - **Backend**: Node.js, Express.js
 - **Database**: DataStax Astra DB
-- **Analytics**: Langflow with GPT integration
-- **Visualization**: Chart.js, TailwindCSS
-- **AI Tools**: Sentiment analysis and engagement insights powered by AI.
+- **AI Analytics**: Langflow with GPT Integration
+- **Visualization**: Chart.js, Recharts
+- **File Parsing**: Papa Parse
 
 ---
 
 ## **Dataset**
 
-The project uses a mock dataset with the following fields:
-- **Post ID**: Unique identifier for each post.
-- **Post Type**: Type of post (carousel, reels, static image).
-- **Engagement Metrics**: Likes, comments, shares, views, saves.
-- **User Engagement Rate**: Engagement based on the number of followers.
-- **Hashtags**: Hashtags used in the post.
-- **Content Length**: Length of post content.
-- **User Demographics**: Age, gender, location.
-- **Sentiment Score**: Sentiment analysis (positive, neutral, negative).
-- **Peak Engagement Time**: Time of day with highest engagement.
-- **Platform**: Platform where the post was shared.
+The mock dataset includes:
+- **Post Details**: Type, content length, hashtags.
+- **Engagement Metrics**: Likes, comments, shares, saves.
+- **User Info**: Age, gender, location.
+- **Sentiment Analysis**: Positive, neutral, negative.
+- **Platform and Time Trends**: Platform-specific and peak times.
 
 ---
 
@@ -64,7 +75,7 @@ The project uses a mock dataset with the following fields:
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/your-username/social-media-performance-analysis.git
+   git clone https://github.com/your-username/quantify.git
    cd Quantify
    ```
 
@@ -74,9 +85,8 @@ The project uses a mock dataset with the following fields:
    ```
 
 3. Set up the database:
-   - Create an account on DataStax Astra DB.
-   - Set up a new database and obtain connection credentials.
-   - Update the `.env` file with your database credentials.
+   - Create an account on [DataStax Astra DB](https://www.datastax.com/astra).
+   - Obtain credentials and update the `.env` file.
 
 4. Start the development server:
    ```bash
@@ -87,34 +97,38 @@ The project uses a mock dataset with the following fields:
 
 ## **Usage**
 
-1. Upload the dataset to the application.
-2. Use the built-in analytics module to:
-   - Visualize engagement trends.
-   - Extract platform-specific insights.
-   - Analyze the impact of hashtags and sentiment.
-
----
+1. Upload a CSV dataset through the app's interface.
+2. Explore insights with:
+   - Visualized metrics and trends.
+   - Sentiment and demographic analysis.
+   - Comparison across platforms.
 
 ---
 
 ## **Contributing**
 
 Contributions are welcome! Please follow these steps:
-
 1. Fork the repository.
-2. Create a new branch for your feature or bug fix:
+2. Create a new branch:
    ```bash
    git checkout -b feature-name
    ```
 3. Commit your changes:
    ```bash
-   git commit -m "Add feature name"
+   git commit -m "Add feature-name"
    ```
-4. Push the branch to your fork:
-   ```bash
-   git push origin feature-name
-   ```
-5. Open a pull request in this repository.
+4. Push and open a pull request.
 
 ---
 
+## **License**
+This project is licensed under the [MIT License](LICENSE).
+
+---
+
+## **Acknowledgments**
+Special thanks to:
+- [Langflow](https://langflow.org) for AI capabilities.
+- [DataStax Astra DB](https://www.datastax.com/astra) for database support.
+- Open-source libraries and the developer community.
+```
