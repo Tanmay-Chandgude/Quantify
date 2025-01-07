@@ -67,7 +67,7 @@ The project uses a mock dataset with the following fields:
 1. Clone the repository:
    ```bash
    git clone https://github.com/your-username/social-media-performance-analysis.git
-   cd social-media-performance-analysis
+   cd Quantify
    ```
 
 2. Install dependencies:
