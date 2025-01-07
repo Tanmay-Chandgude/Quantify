@@ -14,7 +14,7 @@ export const DataInput: React.FC<DataInputProps> = ({ onDataLoaded }) => {
   const [dragActive, setDragActive] = useState(false);
   const [formData, setFormData] = useState<Partial<SocialMediaPost>>({
     id: '',
-    type: 'image',
+    type: 'static image',
     content: '',
     likes: 0,
     shares: 0,
@@ -32,8 +32,8 @@ export const DataInput: React.FC<DataInputProps> = ({ onDataLoaded }) => {
   const [alertMessage, setAlertMessage] = useState('');
 
   const validatePostType = (type: string): SocialMediaPost['type'] => {
-    const validTypes = ['carousel', 'reel', 'image', 'text'] as const;
-    return validTypes.includes(type as any) ? type as SocialMediaPost['type'] : 'text';
+    const validTypes = ['static image', 'carousel', 'reels'] as const;
+    return validTypes.includes(type as any) ? type as SocialMediaPost['type'] : 'static image';
   };
 
   const handleFileUpload = (file: File) => {
@@ -57,7 +57,10 @@ export const DataInput: React.FC<DataInputProps> = ({ onDataLoaded }) => {
           saves: parseInt(row.saves) || 0,
           engagementRate: parseFloat(row.engagementRate) || 0,
           hashtags: row.hashtags ? row.hashtags.split(',').map((tag: string) => tag.trim()) : [],
-          contentLength: row.content?.length || 0
+          contentLength: row.content?.length || 0,
+          platform: row.platform || 'Instagram',
+          sentimentScore: row.sentimentScore || 'neutral',
+          peakEngagementTime: row.peakEngagementTime || '12:00'
         }));
         onDataLoaded(parsedData);
       },
@@ -111,7 +114,7 @@ export const DataInput: React.FC<DataInputProps> = ({ onDataLoaded }) => {
         >
           <input
             type="file"
-            accept=".txt,.md,.csv,.json,.yaml,.yml,.xml,.html,.htm,.pdf,.docx,.py,.sh,.sql,.js,.ts,.tsx,.zip,.xlsx,.xls"
+            accept=".csv"
             className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
             onChange={(e) => e.target.files && handleFileUpload(e.target.files[0])}
             aria-label="Upload data file"
