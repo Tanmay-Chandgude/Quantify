@@ -9,9 +9,7 @@ Analyze and visualize engagement metrics for social media posts using advanced a
 - [Dataset](#dataset)
 - [Installation](#installation)
 - [Usage](#usage)
-- [Future Enhancements](#future-enhancements)
 - [Contributing](#contributing)
-- [License](#license)
 
 ---
 
@@ -96,13 +94,6 @@ The project uses a mock dataset with the following fields:
    - Analyze the impact of hashtags and sentiment.
 
 ---
-
-## **Future Enhancements**
-
-- Integration with real social media APIs (e.g., Instagram Graph API).
-- Advanced NLP techniques for sentiment and text analysis.
-- User-based filtering for personalized insights.
-- Cross-platform comparison dashboards.
 
 ---
 
