@@ -10,8 +10,10 @@ load_dotenv()
 app = FastAPI()
 
 # CORS Configuration
+# CORS Configuration
 origins = [
-    "http://localhost:3000",  # Frontend address
+    "http://localhost:3000",  # Local development frontend
+    "https://quantify-indol.vercel.app",  # Deployed frontend
 ]
 
 app.add_middleware(
