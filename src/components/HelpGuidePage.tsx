@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { ArrowLeft, Upload, FileSpreadsheet, BarChart2, MessageSquare, AlertTriangle } from 'lucide-react';
 
