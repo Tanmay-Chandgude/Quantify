@@ -32,6 +32,9 @@ dist-ssr
 .env.production
 .env*.local
 
+# Python virtual environment
+.venv
+
 # Build files
 build/
 coverage/
