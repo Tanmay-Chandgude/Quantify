@@ -2372,7 +2372,7 @@
                 "placeholder": "",
                 "show": true,
                 "name": "api_key",
-                "value": "AIzaSyAHLr7hU_wxqn_0J74qmlVREQ-sd-zHz2c",
+                "value": "",
                 "display_name": "API Key",
                 "advanced": false,
                 "input_types": [
@@ -2491,7 +2491,7 @@
                 "placeholder": "",
                 "show": true,
                 "name": "api_key",
-                "value": "AIzaSyAHLr7hU_wxqn_0J74qmlVREQ-sd-zHz2c",
+                "value": "",
                 "display_name": "API Key",
                 "advanced": false,
                 "input_types": [
@@ -2647,7 +2647,7 @@
                 "placeholder": "",
                 "show": true,
                 "name": "google_api_key",
-                "value": "AIzaSyAHLr7hU_wxqn_0J74qmlVREQ-sd-zHz2c",
+                "value": "",
                 "display_name": "Google API Key",
                 "advanced": false,
                 "input_types": [
