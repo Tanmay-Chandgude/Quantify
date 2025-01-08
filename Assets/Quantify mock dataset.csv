@@ -1,0 +1,31 @@
+Post_ID,Post_Type,Likes,Shares,Comments,Views,Saves,Post_Date,User_Engagement_Rate,Hashtags/0,Hashtags/1,Hashtags/2,Content_Length,User_Demographics/Age,User_Demographics-Gender,User_Demographics-Location,Sentiment_Score,Peak_Engagement_Time,Platform
+P1,static image,1138,128,271,11505,129,2025-01-01 09:00:00,10.52,#technology,#innovation,#future,370,18-24,Male,"Sydney, Australia",neutral,22:30,Instagram
+P2,reels,589,984,410,57541,196,2025-01-01 09:00:00,10.27,#foodie,#recipe,#homemade,457,35-44,Male,"Tokyo, Japan",neutral,10:38,Facebook
+P3,static image,163,268,146,79952,546,2025-01-02 12:00:00,10.35,#travel,#wanderlust,#nature,323,18-24,Male,"Sydney, Australia",negative,12:59,Facebook
+P4,reels,740,181,71,39970,102,2025-01-04 22:00:00,7.65,#technology,#innovation,#future,282,18-24,Male,"Sydney, Australia",negative,01:12,Twitter
+P5,reels,535,319,163,92031,827,2025-01-04 15:00:00,10.8,#travel,#wanderlust,#nature,258,35-44,Male,"Tokyo, Japan",neutral,17:32,Twitter
+P6,static image,2142,161,394,70309,724,2025-01-03 02:00:00,8.01,#travel,#wanderlust,#nature,412,25-34,Female,"New York, USA",positive,01:03,Twitter
+P7,carousel,762,887,219,52941,262,2025-01-03 09:00:00,13.48,#newyear,#motivation,#2025goals,64,35-44,Male,"Tokyo, Japan",negative,03:14,Facebook
+P8,carousel,3015,97,396,19764,357,2025-01-04 00:00:00,13.68,#fitness,#workout,#healthyliving,184,18-24,Male,"Sydney, Australia",neutral,11:56,Instagram
+P9,reels,4320,688,189,19714,148,2025-01-05 11:00:00,17.81,#technology,#innovation,#future,256,35-44,Male,"Tokyo, Japan",negative,23:34,Facebook
+P10,carousel,513,664,38,55205,674,2025-01-04 20:00:00,12.81,#travel,#wanderlust,#nature,470,35-44,Male,"Tokyo, Japan",neutral,19:22,Twitter
+P11,static image,1268,191,209,32675,839,2025-01-03 21:00:00,11.28,#newyear,#motivation,#2025goals,99,18-24,Male,"Sydney, Australia",neutral,00:29,Instagram
+P12,reels,4492,659,53,61406,896,2025-01-04 08:00:00,18.37,#newyear,#motivation,#2025goals,290,25-34,Female,"New York, USA",neutral,07:32,Instagram
+P13,carousel,2449,982,26,7773,144,2025-01-01 13:00:00,12.48,#fitness,#workout,#healthyliving,167,35-44,Male,"Tokyo, Japan",neutral,19:51,Twitter
+P14,static image,4457,313,426,94951,744,2025-01-01 14:00:00,5.2,#fitness,#workout,#healthyliving,245,18-24,Male,"Sydney, Australia",negative,02:12,Instagram
+P15,static image,949,873,8,20273,330,2025-01-05 05:00:00,10.86,#fitness,#workout,#healthyliving,496,18-24,Male,"Sydney, Australia",positive,11:08,Facebook
+P16,carousel,2934,465,377,5852,43,2025-01-05 04:00:00,13.08,#travel,#wanderlust,#nature,179,35-44,Male,"Tokyo, Japan",positive,17:37,Instagram
+P17,static image,1091,875,153,75612,188,2025-01-04 01:00:00,5.06,#newyear,#motivation,#2025goals,277,25-34,Female,"New York, USA",neutral,18:52,Facebook
+P18,reels,4310,389,416,68056,983,2025-01-03 00:00:00,8.29,#newyear,#motivation,#2025goals,289,18-24,Male,"Sydney, Australia",neutral,11:03,Facebook
+P19,reels,4750,576,7,56843,281,2025-01-04 02:00:00,19.88,#technology,#innovation,#future,260,25-34,Female,"New York, USA",neutral,02:41,Twitter
+P20,reels,612,87,173,95101,315,2025-01-04 00:00:00,18.29,#technology,#innovation,#future,278,18-24,Male,"Sydney, Australia",neutral,06:40,Twitter
+P21,carousel,2579,353,107,25468,83,2025-01-04 07:00:00,19.98,#technology,#innovation,#future,387,25-34,Female,"New York, USA",neutral,11:19,Twitter
+P22,static image,1279,815,51,69333,292,2025-01-04 22:00:00,18.08,#foodie,#recipe,#homemade,423,18-24,Male,"Sydney, Australia",positive,05:41,Facebook
+P23,reels,592,989,316,97826,921,2025-01-04 07:00:00,14.88,#travel,#wanderlust,#nature,120,18-24,Male,"Sydney, Australia",negative,04:57,Instagram
+P24,static image,3640,507,168,95578,108,2025-01-03 18:00:00,5.94,#foodie,#recipe,#homemade,176,18-24,Male,"Sydney, Australia",positive,08:30,Facebook
+P25,reels,781,37,255,52085,893,2025-01-05 12:00:00,10.65,#foodie,#recipe,#homemade,226,35-44,Male,"Tokyo, Japan",positive,18:56,Instagram
+P26,static image,3194,928,112,15415,783,2025-01-02 05:00:00,15.2,#technology,#innovation,#future,406,35-44,Male,"Tokyo, Japan",negative,08:32,Instagram
+P27,static image,988,856,235,85749,843,2025-01-02 22:00:00,11.48,#fitness,#workout,#healthyliving,346,35-44,Male,"Tokyo, Japan",neutral,00:58,Twitter
+P28,carousel,3999,479,86,71349,857,2025-01-03 17:00:00,5.95,#newyear,#motivation,#2025goals,402,25-34,Female,"New York, USA",neutral,05:04,Facebook
+P29,reels,4057,179,224,7304,765,2025-01-03 03:00:00,14.74,#technology,#innovation,#future,243,25-34,Female,"New York, USA",negative,01:45,Instagram
+P30,static image,3948,317,182,8759,181,2025-01-02 07:00:00,6.59,#foodie,#recipe,#homemade,115,25-34,Female,"New York, USA",negative,21:09,Twitter
