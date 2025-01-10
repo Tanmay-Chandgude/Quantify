@@ -1,5 +1,4 @@
 # **Quantify**
-![Quantify Banner](https://via.placeholder.com/800x200.png?text=Quantify+Social+Media+Analytics)
 
 Analyze and visualize engagement metrics for social media posts using advanced analytics and data visualization techniques.
 
